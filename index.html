@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Outlook Express</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="upload.js"></script>
+  <script src="outlook-requests.js"></script>
+  <script src="connection.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Connexion à Microsoft Graph</h1>
+    <p>
+      Pour vous connecter au service Outlook Express, rendez-vous d'abord sur
+      <a href="https://developer.microsoft.com/fr-fr/graph/graph-explorer" target="_blank">Microsoft Graph</a>.
+      <ol>
+        <li>Connectez-vous à l'aide de votre <strong>compte Microsoft</strong>.</li>
+        <li>Allez dans l'onglet <strong>Modifier les autorisations</strong> consentez à <strong>Calendars.ReadWrite</strong>.</li>
+        <li>Allez dans l'onglet <strong>Jeton d'accès</strong> et copiez le token (icône de feuilles).</li>
+        <li>Revenez sur Outlook Express et collez le token ci-dessous puis appuyez sur Commencer.</li>
+      </ol> 
+    </p>
+    <h2>Token Microsoft Graph</h2>
+    <input type="password">
+    <input type="submit" value="Commencer" onClick="connection()">
+  </main>
+  <footer>
+    <h1>Notice d'utilisation</h1>
+    Vous en avez marre de passer du temps à envoyer à la main des pièces jointes
+    pour des évènements de votre calendrier Outlook&nbsp;?
+    Outlook Express est la solution à tous vos problèmes&nbsp;!
+    Commencez par sélectionner l'évènement à modifier. Puis choisissez le fichier
+    à uploader depuis votre disque (maximum 3&nbsp;Mo). Enfin, envoyez et le tour
+    est joué, votre calendrier est automatiquement mis à jour&nbsp;!
+  </footer>
+</body>
+</html>

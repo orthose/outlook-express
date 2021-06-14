@@ -38,9 +38,13 @@ td div.subject:hover {
   cursor: pointer;
 }
 
-main, footer {
+main, section, footer {
   background: lightskyblue;
   border: medium solid white;
+}
+
+footer {
+  text-align: center;
 }
 
 input, a[href="index.html"] {
@@ -68,6 +72,7 @@ input[type=file] {
   filter: alpha(opacity=0);
 }
 
+/* Pour input[type=file] */
 label {
   box-sizing: border-box;
   display: block;
@@ -90,6 +95,14 @@ input[type=submit], a {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+/* Pour éviter débordement des liens du footer */
+footer a {
+  box-sizing: border-box;
+  border-width: 1px;
+  margin: 0px 0px;
+  padding: 0px 0px;
 }
 
 input[type=submit]:hover, a:hover, label:hover {

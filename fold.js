@@ -1,7 +1,9 @@
+// Nécessaire pour échapper les caractères spéciaux CSS
 function escape_id(id_event) {
   return id_event.replace(/(:|\.|\[|\]|,|=|@)/g, "\\$1");
 }
 
+// Dépliage de l'évènement
 function show_event(id_event) {
   const id = escape_id(id_event);
   $("#"+id+" div").show();
@@ -11,6 +13,7 @@ function show_event(id_event) {
   });
 }
 
+// Pliage de l'évènement
 function hide_event(id_event) {
   const id = escape_id(id_event);
   $("#"+id+" div.location").hide();
@@ -21,9 +24,3 @@ function hide_event(id_event) {
     show_event(id_event);
   });
 }
-
-/*function select_file(id_event) {
-  show_event(id_event);
-  /*$(tag).removeAttr("onClick");
-  $(tag).children(".select_file").html($("<input type=file name='image'><input type='submit' value='Envoyer' onClick='put_file($(this).parent(),\""+ $(tag).attr("id")+"\")'>"))*/
-//}

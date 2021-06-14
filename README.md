@@ -26,6 +26,13 @@ Toutes les heures le jeton périme, il faut alors rafraîchir le site précéden
 et récupérer un nouveau jeton d'accès valide et se reconnecter sur Outlook Express.
 Sans cela, les requêtes renvoient l'erreur Unauthorized.
 
+# Scénario principal d'utilisation
+1. Se connecter avec le token (voir ci-dessus).
+2. Choisir un calendrier et attendre (le temps de chargement peut être long).
+3. Choisir un évènement parmi ceux proposés dans l'intervalle 
+\[Aujourd'hui, Aujourd'hui - 31 jours\].
+4. Choisir un fichier et l'envoyer. Un message de validation s'affiche en vert.
+
 # Vérifier le résultat
 Pour s'assurer que le fichier a bien été envoyé sur un évènement du calendrier,
 connectez-vous à [Outlook Calendar](https://outlook.live.com/calendar).

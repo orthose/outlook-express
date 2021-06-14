@@ -70,7 +70,19 @@ function get_calendars() {
       +"</td></tr>");
       // Couleur du calendrier sur le nom
       line.find("div").attr("style", "color:"+line_json["hexColor"]);
-      line.find(".subject").on("click", function() {get_events(line_json["id"])});
+      line.find(".subject").on("click", function() {
+        get_events(line_json["id"]);
+        // Revenir en arrière affiche les calendriers
+        window.onpopstate = function(event) {
+          get_calendars();
+          // Revenir à l'accueil
+          window.onpopstate = function(event) {
+            window.location.href="index.html";
+          };
+          history.pushState({page: 1}, "Accueil");
+        };
+        history.pushState({page: 2}, "Calendrier");
+      });
       calendars.append(line);
     });
     $("main").html(calendars);

@@ -5,10 +5,10 @@ function error() {
   $("main").append($("<a href='index.html'>Se Reconnecter</a>"));
 }
 
-// Récupération de tous les évènements
-function get_events() {
+// Fonction générale pour les requêtes GET
+function get_requests(url_request, fdone) {
   $.ajax({
-    url: "https://graph.microsoft.com/v1.0/me/events/?$select=subject,start,end,location",
+    url: url_request,
     type: 'GET',
     contentType: 'application/json',
     dataType: 'json',
@@ -16,10 +16,6 @@ function get_events() {
       "Authorization": "Bearer " + " " + token_mg
     }
   }).done(function(res) {
-    const simple_date = function(date) {
-      return date.replace(/([0-9]+)-([0-9]+)-([0-9]+)T([0-9]+):([0-9]+).*/, "$3/$2/$1 $4:$5")
-    }
-    
     // Appel Ajax synchrone car liste chaînée de requêtes
     function get_events_nextLink(nextLink) {
       let res = {};
@@ -33,10 +29,10 @@ function get_events() {
           "Authorization": "Bearer " + " " + token_mg
         }
       }).done(function(res_nextLink) {
-          console.log(res_nextLink);
+          //console.log(res_nextLink);
           res = res_nextLink;
       }).fail(function(e) {
-          console.log(e);
+          //console.log(e);
           error();
       });
       return res;
@@ -48,14 +44,53 @@ function get_events() {
     // Chaînage éventuel des requêtes
     while (wait_nextLink) {
       complete_res = get_events_nextLink(complete_res["@odata.nextLink"]);
-      console.log(complete_res);
       wait_nextLink = "@odata.nextLink" in complete_res;
       filtered_res = filtered_res.concat(complete_res["value"]);
     };
     
-    //console.log(filtered_res);
+    // Appel de la callback
+    fdone(filtered_res);
+  }).fail(function(e) {
+    //console.log(e);
+    error();
+  });
+}
+
+// Récupération des calendriers
+function get_calendars() {
+  
+  const url = "https://graph.microsoft.com/v1.0/me/calendars";
+  
+  function fdone(res) {
+    const calendars = $("<table>");
+    res.forEach(function(line_json) {
+      const line = $("<tr id='"+line_json["id"]+"'><td>"
+      +"<div class='subject'>"+line_json["name"]+"</div>"
+      +"</td></tr>");
+      console.log(line_json["hexColor"]);
+      // Couleur du calendrier sur le nom
+      line.find("div").attr("style", "color:"+line_json["hexColor"]);
+      line.find(".subject").on("click", function() {get_events(line_json["id"])});
+      calendars.append(line);
+    });
+    $("main").html(calendars);
+  }
+  
+  get_requests(url, fdone);
+}
+
+// Récupération de tous les évènements
+function get_events(id_calendar) {
+  
+  const url = "https://graph.microsoft.com/v1.0/me/calendars/"+id_calendar+"/events/?$select=subject,start,end,location";
+  
+  function simple_date(date) {
+    return date.replace(/([0-9]+)-([0-9]+)-([0-9]+)T([0-9]+):([0-9]+).*/, "$3/$2/$1 $4:$5")
+  }
+  
+  function fdone(res) {
     const events = $("<table>")
-    filtered_res.forEach(function(line_json) {
+    res.forEach(function(line_json) {
       const line = $("<tr id='"+line_json["id"]+"'><td>"
         +"<div class='subject'>"+line_json["subject"]+"</div>"
         +"<div class='location' hidden>"+line_json["location"]["displayName"]+"</div>"
@@ -76,11 +111,10 @@ function get_events() {
       events.append(line);
     });
     $("main").html(events);
-  }).fail(function(e) {
-    //console.log(e);
-    error();
-  })
-};
+  }
+  
+  get_requests(url, fdone);
+}
 
 // Envoi d'un fichier pièce-jointe à un évènement
 function put_file(tag, id_event) {
@@ -116,4 +150,4 @@ function put_file(tag, id_event) {
       error();
     })
   }
-};
+}

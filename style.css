@@ -96,6 +96,11 @@ input[type=submit]:hover, a:hover, label:hover {
   background-color: deepskyblue;
 }
 
+.select_file p {
+  padding: 0px 0px;
+  margin: 1px 0px;
+}
+
 .error {
   border: medium solid firebrick;
   background: lightcoral;

@@ -27,9 +27,19 @@ function get_events() {
         +"<div class='location' hidden>"+line_json["location"]["displayName"]+"</div>"
         +"<div class='date' hidden>"+simple_date(line_json["start"]["dateTime"])+"</div>"
         +"<div class='date' hidden>"+simple_date(line_json["end"]["dateTime"])+"</div>"
-        +"<div class='select_file' hidden><label>Parcourir...<input type=file name='image'></label><input type='submit' value='Envoyer' onClick=''></div>"
-        +"</td></tr>")
-      events.append(line.on("click", function() {show_event(this.id)}));
+        +"<div class='select_file' hidden><label>Parcourir...<input type=file name='image'></label>"
+        +"<input type='submit' value='Envoyer'><p>Aucun fichier sélectionné</p></div>"
+        +"</td></tr>");
+      line.find(".select_file input[type=file]").on("change", function() {
+        line.find(".select_file p")
+          .css("color", "black")
+          .html($(this)[0].files[0].name + " sélectionné");
+      });
+      line.find(".select_file input[type=submit]").on("click", function() {
+        put_file(line.find(".select_file input[type=file]"), line_json["id"]);
+      });
+      line.find(".subject").on("click", function() {show_event(line_json["id"])});
+      events.append(line);
     });
     $("main").html(events);
   }).fail(function(e) {
@@ -40,32 +50,36 @@ function get_events() {
 
 // Envoi d'un fichier pièce-jointe à un évènement
 function put_file(tag, id_event) {
-  const file_image = $(tag).children("input[type='file']")[0].files[0];
-  const reader = new FileReader();
-  let b64_img = "";
-  reader.onloadend = function() {
-    b64_img = reader.result.replace(/^data:.+;base64,/, '');
-    //console.log(b64_img);
-  };
-  reader.readAsDataURL(file_image);
-  $.ajax({
-    url: "https://graph.microsoft.com/v1.0/me/events/"+id_event+"/attachments",
-    type: 'POST',
-    data: JSON.stringify({ 
-      "@odata.type": "#microsoft.graph.fileAttachment",
-      "name": file_image["name"],
-      "contentBytes": b64_img
-    }),
-    contentType: 'application/json',
-    dataType: 'json',
-    headers: {
-      "Authorization": "Bearer " + " " + token_mg
-    }
-  }).done(function(res) {
-    //console.log(res);
-    $(tag).css("color", "green");
-  }).fail(function(e) {
-    //console.log(e);
-    error();
-  })
+  if ($(tag)[0].files["length"] > 0) {
+    const file_image = $(tag)[0].files[0];
+    const reader = new FileReader();
+    let b64_img = "";
+    reader.onloadend = function() {
+      b64_img = reader.result.replace(/^data:.+;base64,/, '');
+      //console.log(b64_img);
+    };
+    reader.readAsDataURL(file_image);
+    $.ajax({
+      url: "https://graph.microsoft.com/v1.0/me/events/"+id_event+"/attachments",
+      type: 'POST',
+      data: JSON.stringify({ 
+        "@odata.type": "#microsoft.graph.fileAttachment",
+        "name": file_image["name"],
+        "contentBytes": b64_img
+      }),
+      contentType: 'application/json',
+      dataType: 'json',
+      headers: {
+        "Authorization": "Bearer " + " " + token_mg
+      }
+    }).done(function(res) {
+      //console.log(res);
+      $("#"+escape_id(id_event)+" .select_file p")
+        .css("color", "green")
+        .html(file_image["name"] + " a bien été envoyé");
+    }).fail(function(e) {
+      //console.log(e);
+      error();
+    })
+  }
 };

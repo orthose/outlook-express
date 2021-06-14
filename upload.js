@@ -3,23 +3,21 @@ function escape_id(id_event) {
 }
 
 function show_event(id_event) {
-  console.log("show")
   const id = escape_id(id_event);
   $("#"+id+" div").show();
-  $("#"+id).off("click");
-  $("#"+id).on("click", function() {
+  $("#"+id+" .subject").off("click");
+  $("#"+id+" .subject").on("click", function() {
     hide_event(id_event);
   });
 }
 
 function hide_event(id_event) {
-  console.log("hide")
   const id = escape_id(id_event);
   $("#"+id+" div.location").hide();
   $("#"+id+" div.date").hide();
   $("#"+id+" div.select_file").hide();
-  $("#"+id).off("click");
-  $("#"+id).on("click", function() {
+  $("#"+id+" .subject").off("click");
+  $("#"+id+" .subject").on("click", function() {
     show_event(id_event);
   });
 }

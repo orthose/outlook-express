@@ -19,9 +19,43 @@ function get_events() {
     const simple_date = function(date) {
       return date.replace(/([0-9]+)-([0-9]+)-([0-9]+)T([0-9]+):([0-9]+).*/, "$3/$2/$1 $4:$5")
     }
-    //console.log(res);
+    
+    // Appel Ajax synchrone car liste chaînée de requêtes
+    function get_events_nextLink(nextLink) {
+      let res = {};
+      $.ajax({
+        async: false,
+        url: nextLink,
+        type: 'GET',
+        contentType: 'application/json',
+        dataType: 'json',
+        headers: {
+          "Authorization": "Bearer " + " " + token_mg
+        }
+      }).done(function(res_nextLink) {
+          console.log(res_nextLink);
+          res = res_nextLink;
+      }).fail(function(e) {
+          console.log(e);
+          error();
+      });
+      return res;
+    }
+    
+    let complete_res = res;
+    let filtered_res = res["value"];
+    let wait_nextLink = "@odata.nextLink" in res;
+    // Chaînage éventuel des requêtes
+    while (wait_nextLink) {
+      complete_res = get_events_nextLink(complete_res["@odata.nextLink"]);
+      console.log(complete_res);
+      wait_nextLink = "@odata.nextLink" in complete_res;
+      filtered_res = filtered_res.concat(complete_res["value"]);
+    };
+    
+    //console.log(filtered_res);
     const events = $("<table>")
-    res["value"].forEach(function(line_json) {
+    filtered_res.forEach(function(line_json) {
       const line = $("<tr id='"+line_json["id"]+"'><td>"
         +"<div class='subject'>"+line_json["subject"]+"</div>"
         +"<div class='location' hidden>"+line_json["location"]["displayName"]+"</div>"

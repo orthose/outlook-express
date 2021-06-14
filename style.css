@@ -23,10 +23,19 @@ table {
   width: 100%;
 }
 
-th, td {
-  text-align: left;
-  border: medium solid lightskyblue;
-  border-collapse: collapse;
+td div.subject {
+  text-align: center;
+  box-sizing: border-box;
+  border: medium solid mediumblue;
+}
+
+td div {
+  border: none;
+}
+
+td div.subject:hover {
+  background-color: deepskyblue;
+  cursor: pointer;
 }
 
 main, footer {
@@ -47,6 +56,31 @@ input[type=password] {
   text-align: left;
 }
 
+input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0;
+  filter: alpha(opacity=0);
+}
+
+label {
+  box-sizing: border-box;
+  display: block;
+  margin: 1px 0px;
+  padding: 0px 0px;
+  width: 100%;
+  border-radius: 10px;
+  background-color: white;
+  border: medium solid deepskyblue;
+  font-size: medium;
+  text-align: center;
+}
+
 input[type=submit], a {
   font-size: medium;
   text-decoration: none;
@@ -58,7 +92,7 @@ input[type=submit], a {
   cursor: pointer;
 }
 
-input[type=submit]:hover, a:hover {
+input[type=submit]:hover, a:hover, label:hover {
   background-color: deepskyblue;
 }
 

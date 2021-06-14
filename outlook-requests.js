@@ -1,6 +1,7 @@
 // Message d'erreur en cas de problème non-géré
 function error() {
-  $("main").html($("<p class='error'>Oups, quelque chose s'est mal passé...</p>"));
+  $("main").html($("<p class='error'>Oups, quelque chose s'est mal passé..."
+  + " Le jeton est sans doute erroné ou périmé.</p>"));
   $("main").append($("<a href='index.html'>Se Reconnecter</a>"));
 }
 
@@ -20,16 +21,15 @@ function get_events() {
     }
     //console.log(res);
     const events = $("<table>")
-    events.append($("<tr><th>Évènement</th><th>Localisation</th><th>Début</th><th>Fin</th></tr>"))
     res["value"].forEach(function(line_json) {
-      const line = $("<tr id='"+line_json["id"]+"' onClick='select_file(this)'>"
-        +"<td>"+line_json["subject"]+"</td>"
-        +"<td>"+line_json["location"]["displayName"]+"</td>"
-        +"<td>"+simple_date(line_json["start"]["dateTime"])+"</td>"
-        +"<td>"+simple_date(line_json["end"]["dateTime"])+"</td>"
-        +"<td class='select_file'></td>"
-        +"</tr>")
-      events.append(line);
+      const line = $("<tr id='"+line_json["id"]+"'><td>"
+        +"<div class='subject'>"+line_json["subject"]+"</div>"
+        +"<div class='location' hidden>"+line_json["location"]["displayName"]+"</div>"
+        +"<div class='date' hidden>"+simple_date(line_json["start"]["dateTime"])+"</div>"
+        +"<div class='date' hidden>"+simple_date(line_json["end"]["dateTime"])+"</div>"
+        +"<div class='select_file' hidden><label>Parcourir...<input type=file name='image'></label><input type='submit' value='Envoyer' onClick=''></div>"
+        +"</td></tr>")
+      events.append(line.on("click", function() {show_event(this.id)}));
     });
     $("main").html(events);
   }).fail(function(e) {

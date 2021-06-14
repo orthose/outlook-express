@@ -11,6 +11,10 @@
   <script src="connection.js"></script>
 </head>
 <body>
+  <header>
+    <h1>Outlook Express Web App</h1>
+    <a href='index.html'>Revenir à l'Accueil</a>
+  </header>
   <main>
     <h1>Connexion à Microsoft Graph</h1>
     <p>
@@ -18,10 +22,12 @@
       <a href="https://developer.microsoft.com/fr-fr/graph/graph-explorer" target="_blank">Microsoft Graph</a>.
       <ol>
         <li>Connectez-vous à l'aide de votre <strong>compte Microsoft</strong>.</li>
-        <li>Allez dans l'onglet <strong>Modifier les autorisations</strong> consentez à <strong>Calendars.ReadWrite</strong>.</li>
+        <li>Allez dans l'onglet <strong>Autres actions</strong> (représenté par ...), puis <strong>Sélectionner des autorisations</strong> et consentez à <strong>Calendars.ReadWrite</strong>.</li>
         <li>Allez dans l'onglet <strong>Jeton d'accès</strong> et copiez le token (icône de feuilles).</li>
         <li>Revenez sur Outlook Express et collez le token ci-dessous puis appuyez sur Commencer.</li>
-      </ol> 
+      </ol>
+      <strong>Attention&nbsp;</strong>: Le token a une durée de validité de 1&nbsp;heure. 
+      Ne le divulguez pas et ne donnez pas plus de permissions à l'application.
     </p>
     <div id="connection">
       <h2>Token Microsoft Graph</h2>

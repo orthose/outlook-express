@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <title>Outlook Express</title>
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Ubuntu">
+  <link href='style.css' rel='stylesheet'/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="upload.js"></script>
   <script src="outlook-requests.js"></script>
@@ -21,9 +23,11 @@
         <li>Revenez sur Outlook Express et collez le token ci-dessous puis appuyez sur Commencer.</li>
       </ol> 
     </p>
-    <h2>Token Microsoft Graph</h2>
-    <input type="password">
-    <input type="submit" value="Commencer" onClick="connection()">
+    <div id="connection">
+      <h2>Token Microsoft Graph</h2>
+      <input type="password">
+      <input type="submit" value="Commencer" onClick="connection()">
+    </div>
   </main>
   <footer>
     <h1>Notice d'utilisation</h1>

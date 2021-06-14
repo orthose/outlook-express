@@ -1,0 +1,68 @@
+body {
+  font-family: "Ubuntu";
+}
+
+strong {
+  font-weight: bolder;
+  color: mediumblue;
+}
+
+h1, h2 {
+  color: mediumblue;
+  text-decoration: underline;
+  text-align: center;
+}
+
+#connection {
+  border: medium solid mediumblue;
+}
+
+table {
+  border: medium solid lightskyblue;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  border: medium solid lightskyblue;
+  border-collapse: collapse;
+}
+
+main, footer {
+  background: lightskyblue;
+  border: medium solid white;
+}
+
+input, a[href="index.html"] {
+  display: block;
+  box-sizing: border-box;
+  text-align: center;
+  margin: 0px 0px;
+  padding: 0px 0px;
+  width: 100%;
+}
+
+input[type=password] {
+  text-align: left;
+}
+
+input[type=submit], a {
+  font-size: medium;
+  text-decoration: none;
+  border-radius: 10px;
+  background-color: white;
+  border: medium solid deepskyblue;
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+input[type=submit]:hover, a:hover {
+  background-color: deepskyblue;
+}
+
+.error {
+  border: medium solid firebrick;
+  background: lightcoral;
+}

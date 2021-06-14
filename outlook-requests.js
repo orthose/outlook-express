@@ -1,3 +1,9 @@
+// Message d'erreur en cas de problème non-géré
+function error() {
+  $("main").html($("<p class='error'>Oups, quelque chose s'est mal passé...</p>"));
+  $("main").append($("<a href='index.html'>Se Reconnecter</a>"));
+}
+
 // Récupération de tous les évènements
 function get_events() {
   $.ajax({
@@ -12,7 +18,7 @@ function get_events() {
     const simple_date = function(date) {
       return date.replace(/([0-9]+)-([0-9]+)-([0-9]+)T([0-9]+):([0-9]+).*/, "$3/$2/$1 $4:$5")
     }
-    console.log(res);
+    //console.log(res);
     const events = $("<table>")
     events.append($("<tr><th>Évènement</th><th>Localisation</th><th>Début</th><th>Fin</th></tr>"))
     res["value"].forEach(function(line_json) {
@@ -27,10 +33,8 @@ function get_events() {
     });
     $("main").html(events);
   }).fail(function(e) {
-    console.log(e);
-    $("main").html($("<p class='error'>Oups, quelque chose s'est mal passé...</p>"));
-    $("main").append($("<input type='submit' value='Réessayer' onClick='get_events()'>"));
-    $("main").append($("<a href='index.html'>Se Reconnecter</a>"));
+    //console.log(e);
+    error();
   })
 };
 
@@ -41,7 +45,7 @@ function put_file(tag, id_event) {
   let b64_img = "";
   reader.onloadend = function() {
     b64_img = reader.result.replace(/^data:.+;base64,/, '');
-    console.log(b64_img);
+    //console.log(b64_img);
   };
   reader.readAsDataURL(file_image);
   $.ajax({
@@ -58,10 +62,10 @@ function put_file(tag, id_event) {
       "Authorization": "Bearer " + " " + token_mg
     }
   }).done(function(res) {
-    console.log(res);
+    //console.log(res);
     $(tag).css("color", "green");
   }).fail(function(e) {
-    console.log(e);
-    $(tag).css("color", "red");
+    //console.log(e);
+    error();
   })
 };

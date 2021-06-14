@@ -51,7 +51,7 @@ function get_requests(url_request, fdone) {
     // Appel de la callback
     fdone(filtered_res);
   }).fail(function(e) {
-    //console.log(e);
+    console.log(e);
     error();
   });
 }
@@ -67,7 +67,6 @@ function get_calendars() {
       const line = $("<tr id='"+line_json["id"]+"'><td>"
       +"<div class='subject'>"+line_json["name"]+"</div>"
       +"</td></tr>");
-      console.log(line_json["hexColor"]);
       // Couleur du calendrier sur le nom
       line.find("div").attr("style", "color:"+line_json["hexColor"]);
       line.find(".subject").on("click", function() {get_events(line_json["id"])});
@@ -82,15 +81,31 @@ function get_calendars() {
 // Récupération de tous les évènements
 function get_events(id_calendar) {
   
-  const url = "https://graph.microsoft.com/v1.0/me/calendars/"+id_calendar+"/events/?$select=subject,start,end,location";
+  // http://zoocoder.com/javascript-addition-et-soustraction-sur-les-dates/
+  const end_date = new Date();
+  // Plage de 1 mois de parcours des évènements
+  const start_date = new Date((new Date(end_date)).setDate(end_date.getDate() - 31));
+  const url = "https://graph.microsoft.com/v1.0/me/calendars/"
+  +id_calendar+"/calendarview/?"
+  +"startdatetime="+start_date.toISOString()
+  +"&enddatetime="+end_date.toISOString()
+  +"&$select=subject,start,end,location";
+  //+"&$orderby=value/start/dateTime" // Ne fonctionne pas (Bad Request)
+  //console.log(url);
   
   function simple_date(date) {
     return date.replace(/([0-9]+)-([0-9]+)-([0-9]+)T([0-9]+):([0-9]+).*/, "$3/$2/$1 $4:$5")
   }
   
   function fdone(res) {
-    const events = $("<table>")
-    res.forEach(function(line_json) {
+    const events = $("<table>");
+    // On trie pour avoir du plus récent au plus vieux
+    const sorted_events = res.sort(function(a, b) {
+      const date1 = new Date(a["start"]["dateTime"]);
+      const date2 = new Date(b["start"]["dateTime"]);
+      return date2 - date1;
+    });
+    sorted_events.forEach(function(line_json) {
       const line = $("<tr id='"+line_json["id"]+"'><td>"
         +"<div class='subject'>"+line_json["subject"]+"</div>"
         +"<div class='location' hidden>"+line_json["location"]["displayName"]+"</div>"

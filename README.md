@@ -1,5 +1,5 @@
 # Introduction
-Application écrite en Javascript et HTML pour effectuer 2 principales opérations
+Application écrite en Javascript et PHP pour effectuer 2 principales opérations
 en interaction avec Outlook Calendar, via l'API Microsoft Graph.
 1. Récupérer la liste des évènements de l'utilisateur.
 2. Envoyer un fichier en pièce jointe à l'un de ces évènements.
@@ -9,20 +9,39 @@ Application créée par Maxime Vincent d'après une commande de Yann Vincent
 pour sa société S.F.R (Stores Fermetures Réparations).
 
 # Mise en production
-L'application n'utilise pas de PHP et est intégralement écrite en Javascript.
-L'utilisateur peut donc télécharger ce dépôt et utiliser directement 
-l'application en local.
-Il est également possible de la mettre à disposition sur un serveur,
-afin que le code soit maintenu et que cela soit transparent pour l'utilisateur
-(pas besoin de télécharger de nouveau).
+1. Rendez-vous sur le centre d'administration de [Azure](https://aad.portal.azure.com).
+2. Naviguez dans les menus **Azure Active Directory**/**Inscriptions d'applications**
+et créez une nouvelle application avec par exemple comme nom **Outlook Express Web App**.
+3. Choisissez comme utilisateurs **Tous les utilisateurs de compte Microsoft**.
+Si cette option n'est pas disponible vous pouvez par la suite modifier la valeur
+**signInAudience** du manifeste à **AzureADandPersonalMicrosoftAccount**.
+4. Naviguez jusqu'à **Certificats & secrets** et créez un nouveau **Secret client** qui
+de préférence n'expire jamais.
+5. Naviguez jusqu'à **Authentification** et définissez l'URL de redirection en 
+choisissant **Ajouter une plateforme** de type **Web**. L'adresse sera de la forme
+**http://votre-domaine/redirect.php**.
+6. Rendez-vous dans le fichier config.php et remplissez les champs 
+* **client_id** avec l'ID d'application (client) visible dans **Vue d'ensemble**.
+* **client_secret** avec la Valeur de votre Secret client visible dans **Certificats & secrets**. 
+* **redirect_uri** avec l'URL de redirection visible dans **Authentification**.
+
+**Note :** L'application n'utilise PHP que pour la connexion simplifiée car le champ
+**client_secret** ne doit pas être envoyé au client, et doit donc rester uniquement
+sur le serveur. 
 
 # Connexion à Microsoft Graph
-Le système de connexion décrit 
-[ici](https://docs.microsoft.com/fr-fr/outlook/rest/get-started) 
-est compliqué à mettre en place. C'est pourquoi j'ai préconisé l'utilisation
-du [site de démonstration](https://developer.microsoft.com/fr-fr/graph/graph-explorer)
-de Microsot Graph. L'utilisateur devra s'y connecter et récupérer un jeton d'accès.
-Toutes les heures le jeton périme, il faut alors rafraîchir le site précédent
+Il y a deux méthodes pour se connecter.
+1. La plus simple pour l'utilisateur (mais la plus difficile à implémenter)
+est centralisée et fait appel à [l'interface de connexion de Microsoft](https://docs.microsoft.com/fr-fr/outlook/rest/get-started).
+Elle permet de générer automatiquement un token d'une durée de validité de 1 heure.
+Au-delà de ce temps, il suffit de se reconnecter. Si le navigateur a enregistré
+le compte Microsoft, cette reconnexion est très rapide car il les champs login et
+mot de passe sont pré-remplis !
+2. Au départ la connexion était déléguée au [site de démonstration](https://developer.microsoft.com/fr-fr/graph/graph-explorer)
+de Microsot Graph. J'ai laissé cette fonctionnalité au cas où la première
+méthode poserait problème. L'utilisateur doit se connecter au site précédent 
+et récupérer un jeton d'accès.
+Toutes les heures le jeton périme, il faut alors rafraîchir le site
 et récupérer un nouveau jeton d'accès valide et se reconnecter sur Outlook Express.
 Sans cela, les requêtes renvoient l'erreur Unauthorized.
 

@@ -1,15 +1,42 @@
-let token_mg = "" // Token Microsoft Graph
+// Demande de code d'autorisation à Microsoft Graph
+function get_authorization() {
+  const url = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
+  + "?client_id=" + config["client_id"]
+  + "&redirect_uri=" + encodeURIComponent(config["redirect_uri"])
+  + "&response_type=code"
+  + "&scope=" + config["scope"];
+  window.location.href = url;
+}
 
-function connection() {
-  token_mg = $("input[type='password']").val()
-  if (token_mg !== "") {
-    get_calendars();
-    // Revenir en haut de la page
-    window.scrollTo(0,0);
-    // Revenir en arrière pour revenir à l'accueil
-    window.onpopstate = function(event) {
-      window.location.href="index.html";
-    };
-    history.pushState({page: 1}, "Accueil");
+// Chargement de la page des calendriers
+function start() {
+  get_calendars();
+  // Revenir en haut de la page
+  window.scrollTo(0,0);
+  // Revenir en arrière pour revenir à l'accueil
+  window.onpopstate = function(event) {
+    window.location.href="index.php";
+  };
+  history.pushState({page: 1}, "Accueil");
+}
+
+// Démarrer l'application en chargeant les calendriers
+// Si on a entré le token manuellement
+function start_with_token() {
+  const input_token = $("input[type='password']").val()
+  if (input_token !== "") {
+    token_mg = input_token;
+    start();
+  }
+}
+
+// Démarrer l'application en chargeant les calendriers
+// Si on n'a pas entré de token mais que l'on s'est connecté à Microsoft
+function start_without_token() {
+  if (token_mg === "") {
+    error();
+  }
+  else {
+    start();
   }
 }

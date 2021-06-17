@@ -2,7 +2,7 @@
 function error() {
   $("main").html($("<p class='error'>Oups, quelque chose s'est mal passé..."
   + " Le jeton est sans doute erroné ou périmé.</p>"));
-  $("main").append($("<a href='index.html'>Se Reconnecter</a>"));
+  $("main").append($("<a href='index.php'>Se Reconnecter</a>"));
 }
 
 // Fonction générale pour les requêtes GET
@@ -77,7 +77,7 @@ function get_calendars() {
           get_calendars();
           // Revenir à l'accueil
           window.onpopstate = function(event) {
-            window.location.href="index.html";
+            window.location.href="index.php";
           };
           history.pushState({page: 1}, "Accueil");
         };

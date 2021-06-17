@@ -13,8 +13,9 @@ h1, h2 {
   text-align: center;
 }
 
-#connection {
+#connection_with_token, #connection_without_token {
   border: medium solid mediumblue;
+  margin: 1px 0px;
 }
 
 table {
@@ -47,7 +48,7 @@ footer {
   text-align: center;
 }
 
-input, a[href="index.html"] {
+input, a[href="index.php"] {
   display: block;
   box-sizing: border-box;
   text-align: center;

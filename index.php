@@ -6,6 +6,7 @@
   <title>Outlook Express</title>
   <!-- Responsive Web Site for smartphone -->
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" type="image/ico" href="favicon.ico">
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu">
   <link href='style.css' rel='stylesheet'/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

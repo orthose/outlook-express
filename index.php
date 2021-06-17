@@ -32,7 +32,7 @@
   </script>
   <script src="connection.js"></script>
 </head>
-<body>
+<body onload="stats()">
   <header>
     <h1>Outlook Express Web App</h1>
     <a href='index.php'>Revenir à l'Accueil</a>
@@ -83,6 +83,7 @@
     est joué, votre calendrier est automatiquement mis à jour&nbsp;!
   </section>
   <footer>
+    <p id="views"></p>
     Application créée par Maxime Vincent | <a href="https://github.com/orthose/outlook-express" target="_blank">Code Source</a><br>
     Commande de Yann Vincent | © 2021 <a href="https://www.stores-fermetures-91.fr/" target="_blank">S.F.R</a> (Stores Fermetures Réparations)
   </footer>

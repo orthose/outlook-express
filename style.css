@@ -119,3 +119,11 @@ input[type=submit]:hover, a:hover, label:hover {
   border: medium solid firebrick;
   background: lightcoral;
 }
+
+#views {
+  text-align: right;
+  padding: 0px 3px;
+  color: white;
+  border: medium ridge dodgerblue;
+  background-color: deepskyblue;
+}

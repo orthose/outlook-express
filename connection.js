@@ -33,10 +33,20 @@ function start_with_token() {
 // Démarrer l'application en chargeant les calendriers
 // Si on n'a pas entré de token mais que l'on s'est connecté à Microsoft
 function start_without_token() {
-  if (token_mg === "") {
-    error();
-  }
-  else {
-    start();
-  }
+  if (token_mg === "") {error();}
+  else {start();}
+}
+
+// Récupère le nombre de connexions à l'application et
+// l'incrémente de 1
+function stats() {
+  $.ajax({
+    url: document.location.href.replace(/(http:\/\/[^\/]+\/).*/,"$1") + "outlook-express/stats.php",
+    type: 'GET',
+    dataType: 'json',
+  }).done(function(n) {
+    $("#views").html(n);
+  }).fail(function(e) {
+    $("#views").html(0);
+  });
 }

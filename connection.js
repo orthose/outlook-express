@@ -45,8 +45,8 @@ function stats() {
     type: 'GET',
     dataType: 'json',
   }).done(function(n) {
-    $("#views").html(n);
+    $("#views").html(n + " Visites");
   }).fail(function(e) {
-    $("#views").html(0);
+    $("#views").html(0 + " Visites");
   });
 }

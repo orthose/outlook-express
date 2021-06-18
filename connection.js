@@ -41,7 +41,7 @@ function start_without_token() {
 // l'incrémente de 1
 function stats() {
   $.ajax({
-    url: document.location.href.replace(/(http:\/\/[^\/]+\/).*/,"$1") + "outlook-express/stats.php",
+    url: document.location.href.replace(/((http|https):\/\/[^\/]+\/).*/,"$1") + "outlook-express/stats.php",
     type: 'GET',
     dataType: 'json',
   }).done(function(n) {

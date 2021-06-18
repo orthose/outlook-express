@@ -131,7 +131,7 @@ function get_events(id_calendar) {
       // Affichage du fichier sélectionné
       line.find(".select_file input[type=file]").on("change", function() {
         const list = line.find(".select_file ul");
-        list.html(""); list.css("color", "black");
+        list.html(""); list.removeClass("sending sent");
         Array.from($(this)[0].files).forEach(function(file) {
           list.append($("<li>").append(file.name));
         });
@@ -153,8 +153,15 @@ function get_events(id_calendar) {
 // Envoi d'un fichier pièce-jointe à un évènement
 function put_file(input_file_tag, id_calendar, id_event) {
   
+  // Prévoir la réactivation des input
+  const input = $("#"+escape_id(id_event)+" .select_file input");
+  const nb_files = $(input_file_tag)[0].files["length"];
+  let count_requests = nb_files;
+  
   // Un fichier doit avoir été sélectionné
-  if ($(input_file_tag)[0].files["length"] > 0) {
+  if (nb_files > 0) {
+    // Vérouillage des input
+    input.prop("disabled", true);
     Array.from($(input_file_tag)[0].files).forEach(function(file, i) {
       const reader = new FileReader();
       let b64_img = "";
@@ -163,6 +170,10 @@ function put_file(input_file_tag, id_calendar, id_event) {
         // Conversion du fichier en base64
         b64_img = reader.result.replace(/^data:.+;base64,/, '');
         
+        // Animation du chargement
+        const current_li = $($("#"+escape_id(id_event)+" .select_file ul li")[i]);
+        current_li.addClass("sending");
+          
         // Appel Ajax après le chargement du fichier pour que b64_img != ""
         $.ajax({
           url: "https://graph.microsoft.com/v1.0/me/calendars/"+id_calendar
@@ -180,8 +191,13 @@ function put_file(input_file_tag, id_calendar, id_event) {
           }
         }).done(function(res) {
           //console.log(res);
-          $($("#"+escape_id(id_event)+" .select_file ul li")[i])
-          .css("color", "green");
+          // Arrêt de l'animation et changement de couleur
+          current_li.removeClass("sending").addClass("sent");
+          // Réactivation du bouton d'envoi
+          count_requests--;
+          if (count_requests === 0) {
+            input.prop("disabled", false);
+          }
         }).fail(function(e) {
           //console.log(e);
           error();

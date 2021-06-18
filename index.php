@@ -6,9 +6,13 @@
   <title>Outlook Express</title>
   <!-- Responsive Web Site for smartphone -->
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="icon" type="image/ico" href="favicon.ico">
+  <!-- Icônes -->
+  <link rel="icon" type="image/ico" href="favicon-180.ico" sizes="180x180">
+  <link rel="apple-touch-icon" type="image/png" href="favicon-180.png" sizes="180x180">
+  <!-- Feuilles de style -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu">
-  <link href='style.css' rel='stylesheet'/>
+  <link href='style.css' rel='stylesheet'>
+  <!-- Scripts -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="fold.js"></script>
   <script src="outlook-requests.js"></script>

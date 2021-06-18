@@ -24,6 +24,9 @@ choisissant **Ajouter une plateforme** de type **Web**. L'adresse sera de la for
 * **client_id** avec l'ID d'application (client) visible dans **Vue d'ensemble**.
 * **client_secret** avec la Valeur de votre Secret client visible dans **Certificats & secrets**. 
 * **redirect_uri** avec l'URL de redirection visible dans **Authentification**.
+7. Paramétrez votre serveur pour qu'il utilise HTTPS (par exemple avec Let's Encrypt),
+car avec **AzureADandPersonalMicrosoftAccount**, seul le protocole HTTPS est autorisé
+par Microsoft pour l'adresse de redirection.
 
 **Note :** L'application n'utilise PHP que pour la connexion simplifiée car le champ
 **client_secret** ne doit pas être envoyé au client, et doit donc rester uniquement

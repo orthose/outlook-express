@@ -32,7 +32,7 @@
   </script>
   <script src="connection.js"></script>
 </head>
-<body onload="stats()">
+<body onload="stats();<?php if (isset($_SESSION["token"])) {echo "start_without_token()";} ?>">
   <header>
     <h1>Outlook Express Web App</h1>
     <a href='index.php'>Revenir à l'Accueil</a>
@@ -42,16 +42,15 @@
     <p>
       Pour utiliser le service Outlook Express, cliquez tout d'abord sur
       <strong>Se&nbsp;Connecter</strong>, puis saisissez les identifiants de votre 
-      compte Microsoft. Ensuite, <strong>acceptez</strong> simplement les 
+      compte Microsoft. Enfin, <strong>acceptez</strong> simplement les 
       autorisations demandées permettant de <strong>lire et écrire</strong> 
-      dans vos calendriers. Enfin, cliquez sur <strong>Commencer</strong> 
-      et le tour est joué&nbsp;!  
+      dans vos calendriers.  
     </p>
     <div id="connection_without_token">
       <h2>Connexion Compte Microsoft</h2>
       <input type="submit" 
-      value="<?php if (!isset($_SESSION["token"])) {echo "Se Connecter";} else {echo "Commencer";} ?>"
-      onClick="<?php if (!isset($_SESSION["token"])) {echo "get_authorization()";} else {echo "start_without_token()";} ?>">
+      value="<?php if (!isset($_SESSION["token"])) {echo "Se Connecter";} else {echo "Commencer";} // else useless body.onload ?>"
+      onClick="<?php if (!isset($_SESSION["token"])) {echo "get_authorization()";} else {echo "start_without_token()";} // else useless body.onload ?>">
     </div>
     <p>
       Vous pouvez également recourir à l'ancienne méthode de connexion en cas de besoin.
@@ -66,7 +65,7 @@
       <strong>Attention&nbsp;</strong>: Le token a une durée de validité de 1&nbsp;heure. 
       Ne le divulguez pas et ne donnez pas plus de permissions à l'application.
     </p>
-    <div id="connection_with_token" <?php if (isset($_SESSION["token"])) {echo "hidden";} ?>>
+    <div id="connection_with_token" <?php if (isset($_SESSION["token"])) {echo "hidden";} // useless body.onload ?>>
       <h2>Token Microsoft Graph</h2>
       <input type="password">
       <input type="submit" value="Commencer" onClick="start_with_token()">

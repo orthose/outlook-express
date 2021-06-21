@@ -164,11 +164,10 @@ function put_file(input_file_tag, id_calendar, id_event) {
     input.prop("disabled", true);
     Array.from($(input_file_tag)[0].files).forEach(function(file, i) {
       const reader = new FileReader();
-      let b64_img = "";
       // Fonctione exécutée à la fin du chargement du fichier
       reader.onloadend = function() {
         // Conversion du fichier en base64
-        b64_img = reader.result.replace(/^data:.+;base64,/, '');
+        const b64_img = reader.result.replace(/^data:.+;base64,/, '');
         
         // Animation du chargement
         const current_li = $($("#"+escape_id(id_event)+" .select_file ul li")[i]);

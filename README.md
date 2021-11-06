@@ -55,11 +55,16 @@ Sans cela, les requêtes renvoient l'erreur Unauthorized.
 \[Aujourd'hui, Aujourd'hui - 31 jours\].
 4. Choisir un fichier et l'envoyer. Un message de validation s'affiche en vert.
 
+**Note :** L'application peut envoyer des fichiers jusqu'à 150MB. Les fichiers de moins
+de 3MB seront envoyés plus rapidement car au-delà il faut ouvrir une session de transfert
+pour les fichiers de grande taille.
+
 # Vérifier le résultat
 Pour s'assurer que le fichier a bien été envoyé sur un évènement du calendrier,
 connectez-vous à [Outlook Calendar](https://outlook.live.com/calendar).
 Sélectionnez l'évènement et vérifiez que la pièce jointe a été ajoutée.
 
 # Documentation
-* [Comment envoyer un fichier ?](https://docs.microsoft.com/en-us/graph/api/event-post-attachments?view=graph-rest-1.0&tabs=http)
+* [Comment envoyer un fichier de moins de 3MB ?](https://docs.microsoft.com/en-us/graph/api/event-post-attachments?view=graph-rest-1.0&tabs=http)
+* [Comment envoyer un fichier de plus de 3MB ?](https://docs.microsoft.com/en-us/graph/outlook-large-attachments?tabs=http)
 * [File Attachment](https://docs.microsoft.com/en-us/graph/api/resources/fileattachment?view=graph-rest-1.0)

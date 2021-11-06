@@ -13,7 +13,7 @@ function get_requests(url_request, fdone) {
     contentType: 'application/json',
     dataType: 'json',
     headers: {
-      "Authorization": "Bearer " + " " + token_mg
+      "Authorization": "Bearer" + " " + token_mg
     }
   }).done(function(res) {
     
@@ -27,7 +27,7 @@ function get_requests(url_request, fdone) {
         contentType: 'application/json',
         dataType: 'json',
         headers: {
-          "Authorization": "Bearer " + " " + token_mg
+          "Authorization": "Bearer" + " " + token_mg
         }
       }).done(function(res_nextLink) {
           //console.log(res_nextLink);
@@ -158,52 +158,182 @@ function put_file(input_file_tag, id_calendar, id_event) {
   const nb_files = $(input_file_tag)[0].files["length"];
   let count_requests = nb_files;
   
-  // Un fichier doit avoir été sélectionné
+  // Un fichier au moins doit avoir été sélectionné
   if (nb_files > 0) {
     // Vérouillage des input
     input.prop("disabled", true);
     Array.from($(input_file_tag)[0].files).forEach(function(file, i) {
       const reader = new FileReader();
-      // Fonctione exécutée à la fin du chargement du fichier
-      reader.onloadend = function() {
-        // Conversion du fichier en base64
-        const b64_img = reader.result.replace(/^data:.+;base64,/, '');
-        
-        // Animation du chargement
-        const current_li = $($("#"+escape_id(id_event)+" .select_file ul li")[i]);
-        current_li.addClass("sending");
+      // Conversion de la taille du fichier en MB
+      const mb_size = file.size / (2 ** 20); // Bytes -> MB
+      
+      // Taille de fichier inférieure strictement à 3MB
+      if (mb_size < 3.) {
+        // Fonctione exécutée à la fin du chargement du fichier
+        reader.onloadend = function() {
+          // Conversion du fichier en base64
+          const b64_file = reader.result.replace(/^data:.+;base64,/, '');
+          // Animation du chargement
+          const current_li = $($("#"+escape_id(id_event)+" .select_file ul li")[i]);
+          current_li.addClass("sending");
+          // Envoi du fichier en un seul appel Ajax
+          // Appel Ajax après le chargement du fichier pour que b64_file != ""
+          $.ajax({
+            url: "https://graph.microsoft.com/v1.0/me/calendars/"+id_calendar
+            +"/events/"+id_event+"/attachments",
+            type: 'POST',
+            data: JSON.stringify({ 
+              "@odata.type": "#microsoft.graph.fileAttachment",
+              "name": file["name"],
+              "contentBytes": b64_file
+            }),
+            contentType: 'application/json',
+            dataType: 'json',
+            headers: {
+              "Authorization": "Bearer" + " " + token_mg
+            }
+          }).done(function(res) {
+            //console.log(res);
+            // Arrêt de l'animation et changement de couleur
+            current_li.removeClass("sending").addClass("sent");
+            // Réactivation du bouton d'envoi
+            count_requests--;
+            if (count_requests === 0) {
+              input.prop("disabled", false);
+            }
+          }).fail(function(e) {
+            //console.log(e);
+            error();
+          });
+        }
+        // Chargement du fichier en format base64
+        reader.readAsDataURL(file);
+      }
+      // Taille de fichier entre 3MB et 150MB
+      else if (3. <= mb_size && mb_size < 150.) {
+        // Fonctione exécutée à la fin du chargement du fichier
+        reader.onloadend = function() {
+          // Animation du chargement
+          const current_li = $($("#"+escape_id(id_event)+" .select_file ul li")[i]);
+          current_li.text(current_li.text() + " (0.00MB/"+(file.size / (2 ** 20)).toPrecision(3)+"MB)")
+          current_li.addClass("sending");
+          // Ouverture de la session de transfert
+          let upload_url = "";
+          $.ajax({
+            url: "https://graph.microsoft.com/v1.0/me/calendars/"+id_calendar
+            +"/events/"+id_event+"/attachments/createUploadSession",
+            type: 'POST',
+            data: JSON.stringify({ 
+              "AttachmentItem": {
+                "attachmentType": "file",
+                "name": file["name"],
+                // Taille en octets
+                "size": file.size
+              }
+            }),
+            contentType: 'application/json',
+            dataType: 'json',
+            headers: {
+              "Authorization": "Bearer" + " " + token_mg
+            },
+            // Le transfert ne peut pas commencer avant d'avoir reçu la réponse
+            async: false
+          }).done(function(res) {
+            //console.log(res)
+            upload_url = res["uploadUrl"];
+          }).fail(function(e) {
+            //console.log(e);
+            error();
+          });
           
-        // Appel Ajax après le chargement du fichier pour que b64_img != ""
-        $.ajax({
-          url: "https://graph.microsoft.com/v1.0/me/calendars/"+id_calendar
-          +"/events/"+id_event+"/attachments",
-          type: 'POST',
-          data: JSON.stringify({ 
-            "@odata.type": "#microsoft.graph.fileAttachment",
-            "name": file["name"],
-            "contentBytes": b64_img
-          }),
-          contentType: 'application/json',
-          dataType: 'json',
-          headers: {
-            "Authorization": "Bearer " + " " + token_mg
+          // Envoi des paquets de données de 3MB en asynchrone
+          const packet_length =  3 * (2 ** 20); // 3MB
+          let start_byte = 0; let rest_bytes = file.size;
+          while (rest_bytes >= packet_length) {
+            $.ajax({
+              url: upload_url,
+              type: 'PUT',
+              // slice(begin, end) end exclu
+              data: reader.result.slice(start_byte, start_byte + packet_length),
+              contentType: 'application/octet-stream',
+              headers: {
+                // Content-Length pas accepté par Ajax
+                // start-end/total end inclus
+                "Content-Range": "bytes "+start_byte+"-"+(start_byte + packet_length - 1)+"/"+file.size
+              },
+              // Pour empêcher sérialisation du binaire
+              processData: false,
+              // Le transfert doit être ordonné et asynchrone
+              async: false
+            }).done(function() {
+              // Progression de l'upload
+              const uploaded_bytes = ((start_byte + packet_length - 1) / (2 ** 20)).toPrecision(3);
+              current_li.text(current_li.text().replace(/\([0-9]+\.[0-9]+MB\/([0-9]+\.[0-9]+MB)\)/, "("+uploaded_bytes+"MB/$1)"));
+            }).fail(function(e) {
+              //console.log(e);
+              error();
+            });
+            // On a envoyé packet_length bytes
+            // Le prochain byte attendu est (start_byte + packet_length)
+            start_byte += packet_length;
+            rest_bytes -= packet_length;
           }
-        }).done(function(res) {
-          //console.log(res);
-          // Arrêt de l'animation et changement de couleur
-          current_li.removeClass("sending").addClass("sent");
-          // Réactivation du bouton d'envoi
-          count_requests--;
-          if (count_requests === 0) {
-            input.prop("disabled", false);
+          
+          // Envoi éventuel du dernier paquet
+          if (rest_bytes > 0) {
+            $.ajax({
+              url: upload_url,
+              type: 'PUT',
+              // slice(begin, end) end exclu
+              // rest_bytes inclus le premier byte donc pas de +1
+              data: reader.result.slice(start_byte),
+              contentType: 'application/octet-stream',
+              headers: {
+                // start-end/total end inclus
+                "Content-Range": "bytes "+start_byte+"-"+(file.size - 1)+"/"+file.size
+              },
+              // Pour empêcher sérialisation du binaire
+              processData: false,
+            }).done(function() {
+              // Progression de l'upload
+              current_li.text(current_li.text().replace(/\([0-9]+\.[0-9]+MB\/([0-9]+\.[0-9]+MB)\)/, "($1/$1)"));
+              // Arrêt de l'animation et changement de couleur
+              current_li.removeClass("sending").addClass("sent");
+              // Réactivation du bouton d'envoi
+              count_requests--;
+              if (count_requests === 0) {
+                input.prop("disabled", false);
+              }
+            }).fail(function(e) {
+              //console.log(e);
+              error();
+            });
           }
-        }).fail(function(e) {
-          //console.log(e);
-          error();
-        });
-      };
-      // Chargement du fichier
-      reader.readAsDataURL(file);
-    })
+          // upload fini dans la boucle
+          else {
+            // Arrêt de l'animation et changement de couleur
+            current_li.removeClass("sending").addClass("sent");
+            // Réactivation du bouton d'envoi
+            count_requests--;
+            if (count_requests === 0) {
+              input.prop("disabled", false);
+            }
+          }
+        }
+        // Chargement du fichier en format binaire
+        reader.readAsArrayBuffer(file);
+      } 
+      // Taille de fichier supérieure à 150MB non-prise en charge
+      else {
+        const current_li = $($("#"+escape_id(id_event)+" .select_file ul li")[i]);
+        current_li.attr("class", "error");
+        current_li.text(current_li.text() + " (Erreur : Fichier trop volumineux)");
+        // Réactivation du bouton d'envoi
+        count_requests--;
+        if (count_requests === 0) {
+          input.prop("disabled", false);
+        }
+      }
+    });
   }
 }

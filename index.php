@@ -82,7 +82,7 @@
     Outlook Express est la solution à tous vos problèmes&nbsp;!
     Commencez par sélectionner votre calendrier favori.
     Puis continuez en sélectionnant l'évènement à modifier. Puis choisissez le fichier
-    à uploader depuis votre disque (maximum 3&nbsp;Mo). Enfin, envoyez et le tour
+    à uploader depuis votre disque <strong>(maximum 150&nbsp;Mo)</strong>. Enfin, envoyez et le tour
     est joué, votre calendrier est automatiquement mis à jour&nbsp;!
   </section>
   <footer>

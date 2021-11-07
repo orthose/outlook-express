@@ -53,7 +53,8 @@ Sans cela, les requêtes renvoient l'erreur Unauthorized.
 2. Choisir un calendrier et attendre (le temps de chargement peut être long).
 3. Choisir un évènement parmi ceux proposés dans l'intervalle 
 \[Aujourd'hui, Aujourd'hui - 31 jours\].
-4. Choisir un fichier et l'envoyer. Un message de validation s'affiche en vert.
+4. Choisir un ou plusieurs fichiers et les envoyer. Une animation permet de suivre l'envoi.
+5. Revenir en arrière avec les flèches du navigateur pour choisir un nouvel évènement.
 
 **Note :** L'application peut envoyer des fichiers jusqu'à 150MB. Les fichiers de moins
 de 3MB seront envoyés plus rapidement car au-delà il faut ouvrir une session de transfert
@@ -63,6 +64,13 @@ pour les fichiers de grande taille.
 Pour s'assurer que le fichier a bien été envoyé sur un évènement du calendrier,
 connectez-vous à [Outlook Calendar](https://outlook.live.com/calendar).
 Sélectionnez l'évènement et vérifiez que la pièce jointe a été ajoutée.
+
+# Bogues connus
+* **Bogue d'envoi :** Quand trop de fichiers sont envoyés en même temps, comme les envois
+sont asynchrones il peut arriver que trop de bande passante soit utilisée. Donc certains
+gros fichiers de plus de 3MB n'arriveront pas à envoyer leurs paquets avant les expirations
+de session. Cela mettra en rouge le fichier incriminé. Mais malgré cela, certains autres fichiers 
+pourront tout de même être envoyés correctement.
 
 # Documentation
 * [Comment envoyer un fichier de moins de 3MB ?](https://docs.microsoft.com/en-us/graph/api/event-post-attachments?view=graph-rest-1.0&tabs=http)

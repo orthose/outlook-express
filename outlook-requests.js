@@ -166,6 +166,8 @@ function put_file(input_file_tag, id_calendar, id_event) {
       const reader = new FileReader();
       // Conversion de la taille du fichier en MB
       const mb_size = file.size / (2 ** 20); // Bytes -> MB
+      // Élement graphique contenant le nom du fichier courant
+      const current_li = $($("#"+escape_id(id_event)+" .select_file ul li")[i]);
       
       // Taille de fichier inférieure strictement à 3MB
       if (mb_size < 3.) {
@@ -174,8 +176,7 @@ function put_file(input_file_tag, id_calendar, id_event) {
           // Conversion du fichier en base64
           const b64_file = reader.result.replace(/^data:.+;base64,/, '');
           // Animation du chargement
-          const current_li = $($("#"+escape_id(id_event)+" .select_file ul li")[i]);
-          current_li.addClass("sending");
+          current_li.attr("class", "sending");
           // Envoi du fichier en un seul appel Ajax
           // Appel Ajax après le chargement du fichier pour que b64_file != ""
           $.ajax({
@@ -195,7 +196,7 @@ function put_file(input_file_tag, id_calendar, id_event) {
           }).done(function(res) {
             //console.log(res);
             // Arrêt de l'animation et changement de couleur
-            current_li.removeClass("sending").addClass("sent");
+            current_li.attr("class", "sent");
             // Réactivation du bouton d'envoi
             count_requests--;
             if (count_requests === 0) {
@@ -203,7 +204,12 @@ function put_file(input_file_tag, id_calendar, id_event) {
             }
           }).fail(function(e) {
             //console.log(e);
-            error();
+            current_li.attr("class", "error");
+            // Réactivation du bouton d'envoi
+            count_requests--;
+            if (count_requests === 0) {
+              input.prop("disabled", false);
+            }
           });
         }
         // Chargement du fichier en format base64
@@ -214,11 +220,97 @@ function put_file(input_file_tag, id_calendar, id_event) {
         // Fonctione exécutée à la fin du chargement du fichier
         reader.onloadend = function() {
           // Animation du chargement
-          const current_li = $($("#"+escape_id(id_event)+" .select_file ul li")[i]);
-          current_li.text(current_li.text() + " (0.00MB/"+(file.size / (2 ** 20)).toPrecision(3)+"MB)")
-          current_li.addClass("sending");
+          current_li.text(current_li.text().replace(/\([0-9]+\.[0-9]+MB\/[0-9]+\.[0-9]+MB\)/, ""));
+          current_li.text(current_li.text() + " (0.00MB/"+(file.size / (2 ** 20)).toPrecision(3)+"MB)");
+          current_li.attr("class", "sending");
+          
+          // Fonction récursive d'envoi des paquets d'octets
+          // de manière ordonnée et asynchrone
+          const packet_length =  3 * (2 ** 20); // 3MB
+          function put_large_file(start_byte, rest_bytes, upload_url) {
+            // Envoi des paquets de données de 3MB en asynchrone
+            if (rest_bytes >= packet_length) {
+              $.ajax({
+                url: upload_url,
+                type: 'PUT',
+                // slice(begin, end) end exclu
+                data: reader.result.slice(start_byte, start_byte + packet_length),
+                contentType: 'application/octet-stream',
+                headers: {
+                  // Content-Length pas accepté par Ajax
+                  // start-end/total end inclus
+                  "Content-Range": "bytes "+start_byte+"-"+(start_byte + packet_length - 1)+"/"+file.size
+                },
+                // Pour empêcher sérialisation du binaire
+                processData: false
+              }).done(function() {
+                // Progression de l'upload
+                const uploaded_bytes = ((start_byte + packet_length - 1) / (2 ** 20)).toPrecision(3);
+                current_li.text(current_li.text().replace(/\([0-9]+\.[0-9]+MB\/([0-9]+\.[0-9]+MB)\)/, "("+uploaded_bytes+"MB/$1)"));
+                // On a envoyé packet_length bytes
+                // Le prochain byte attendu est (start_byte + packet_length)
+                start_byte += packet_length;
+                rest_bytes -= packet_length;
+                // Prochain appel Ajax
+                put_large_file(start_byte, rest_bytes, upload_url);
+              }).fail(function(e) {
+                //console.log(e);
+                current_li.attr("class", "error");
+                // Réactivation du bouton d'envoi
+                count_requests--;
+                if (count_requests === 0) {
+                  input.prop("disabled", false);
+                }
+              });
+            }
+            // Envoi éventuel du dernier paquet
+            else if (rest_bytes > 0) {
+              $.ajax({
+                url: upload_url,
+                type: 'PUT',
+                // slice(begin, end) end exclu
+                // rest_bytes inclus le premier byte donc pas de +1
+                data: reader.result.slice(start_byte),
+                contentType: 'application/octet-stream',
+                headers: {
+                  // start-end/total end inclus
+                  "Content-Range": "bytes "+start_byte+"-"+(file.size - 1)+"/"+file.size
+                },
+                // Pour empêcher sérialisation du binaire
+                processData: false,
+              }).done(function() {
+                // Progression de l'upload
+                current_li.text(current_li.text().replace(/\([0-9]+\.[0-9]+MB\/([0-9]+\.[0-9]+MB)\)/, "($1/$1)"));
+                // Arrêt de l'animation et changement de couleur
+                current_li.attr("class", "sent");
+                // Réactivation du bouton d'envoi
+                count_requests--;
+                if (count_requests === 0) {
+                  input.prop("disabled", false);
+                }
+              }).fail(function(e) {
+                //console.log(e);
+                current_li.attr("class", "error");
+                // Réactivation du bouton d'envoi
+                count_requests--;
+                if (count_requests === 0) {
+                  input.prop("disabled", false);
+                }
+              });
+            }
+            // upload fini dans la boucle principale
+            else {
+              // Arrêt de l'animation et changement de couleur
+              current_li.attr("class", "sent");
+              // Réactivation du bouton d'envoi
+              count_requests--;
+              if (count_requests === 0) {
+                input.prop("disabled", false);
+              }
+            }
+          }
+          
           // Ouverture de la session de transfert
-          let upload_url = "";
           $.ajax({
             url: "https://graph.microsoft.com/v1.0/me/calendars/"+id_calendar
             +"/events/"+id_event+"/attachments/createUploadSession",
@@ -235,97 +327,27 @@ function put_file(input_file_tag, id_calendar, id_event) {
             dataType: 'json',
             headers: {
               "Authorization": "Bearer" + " " + token_mg
-            },
-            // Le transfert ne peut pas commencer avant d'avoir reçu la réponse
-            async: false
+            }
           }).done(function(res) {
             //console.log(res)
-            upload_url = res["uploadUrl"];
+            let start_byte = 0; let rest_bytes = file.size;
+            // Transfert des paquets de données
+            put_large_file(start_byte, rest_bytes, res["uploadUrl"]);
           }).fail(function(e) {
             //console.log(e);
-            error();
-          });
-          
-          // Envoi des paquets de données de 3MB en asynchrone
-          const packet_length =  3 * (2 ** 20); // 3MB
-          let start_byte = 0; let rest_bytes = file.size;
-          while (rest_bytes >= packet_length) {
-            $.ajax({
-              url: upload_url,
-              type: 'PUT',
-              // slice(begin, end) end exclu
-              data: reader.result.slice(start_byte, start_byte + packet_length),
-              contentType: 'application/octet-stream',
-              headers: {
-                // Content-Length pas accepté par Ajax
-                // start-end/total end inclus
-                "Content-Range": "bytes "+start_byte+"-"+(start_byte + packet_length - 1)+"/"+file.size
-              },
-              // Pour empêcher sérialisation du binaire
-              processData: false,
-              // Le transfert doit être ordonné et asynchrone
-              async: false
-            }).done(function() {
-              // Progression de l'upload
-              const uploaded_bytes = ((start_byte + packet_length - 1) / (2 ** 20)).toPrecision(3);
-              current_li.text(current_li.text().replace(/\([0-9]+\.[0-9]+MB\/([0-9]+\.[0-9]+MB)\)/, "("+uploaded_bytes+"MB/$1)"));
-            }).fail(function(e) {
-              //console.log(e);
-              error();
-            });
-            // On a envoyé packet_length bytes
-            // Le prochain byte attendu est (start_byte + packet_length)
-            start_byte += packet_length;
-            rest_bytes -= packet_length;
-          }
-          
-          // Envoi éventuel du dernier paquet
-          if (rest_bytes > 0) {
-            $.ajax({
-              url: upload_url,
-              type: 'PUT',
-              // slice(begin, end) end exclu
-              // rest_bytes inclus le premier byte donc pas de +1
-              data: reader.result.slice(start_byte),
-              contentType: 'application/octet-stream',
-              headers: {
-                // start-end/total end inclus
-                "Content-Range": "bytes "+start_byte+"-"+(file.size - 1)+"/"+file.size
-              },
-              // Pour empêcher sérialisation du binaire
-              processData: false,
-            }).done(function() {
-              // Progression de l'upload
-              current_li.text(current_li.text().replace(/\([0-9]+\.[0-9]+MB\/([0-9]+\.[0-9]+MB)\)/, "($1/$1)"));
-              // Arrêt de l'animation et changement de couleur
-              current_li.removeClass("sending").addClass("sent");
-              // Réactivation du bouton d'envoi
-              count_requests--;
-              if (count_requests === 0) {
-                input.prop("disabled", false);
-              }
-            }).fail(function(e) {
-              //console.log(e);
-              error();
-            });
-          }
-          // upload fini dans la boucle
-          else {
-            // Arrêt de l'animation et changement de couleur
-            current_li.removeClass("sending").addClass("sent");
+            current_li.attr("class", "error");
             // Réactivation du bouton d'envoi
             count_requests--;
             if (count_requests === 0) {
               input.prop("disabled", false);
             }
-          }
+          });
         }
         // Chargement du fichier en format binaire
         reader.readAsArrayBuffer(file);
       } 
       // Taille de fichier supérieure à 150MB non-prise en charge
       else {
-        const current_li = $($("#"+escape_id(id_event)+" .select_file ul li")[i]);
         current_li.attr("class", "error");
         current_li.text(current_li.text() + " (Erreur : Fichier trop volumineux)");
         // Réactivation du bouton d'envoi

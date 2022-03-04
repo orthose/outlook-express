@@ -84,6 +84,17 @@ input[type=file] {
   filter: alpha(opacity=0);
 }
 
+input[type=date] {
+  border-radius: 0px;
+}
+
+p.form {
+  color: white;
+  background: mediumblue;
+  text-align: center;
+  margin-bottom: 3px;
+}
+
 /* Pour input[type=file] */
 label {
   box-sizing: border-box;

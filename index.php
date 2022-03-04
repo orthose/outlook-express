@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" type="image/png" href="favicon-180.png" sizes="180x180">
   <!-- Feuilles de style -->
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu">
-  <link href='style.css' rel='stylesheet'>
+  <link rel='stylesheet' type='text/css' href='style.css'>
   <!-- Scripts -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="fold.js"></script>

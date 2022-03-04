@@ -92,16 +92,25 @@ function get_calendars() {
 }
 
 // Récupération de tous les évènements
-function get_events(id_calendar) {
+function get_events(id_calendar, start_date="", end_date="") {
   
-  // http://zoocoder.com/javascript-addition-et-soustraction-sur-les-dates/
-  const end_date = new Date();
-  // Plage de 1 mois de parcours des évènements
-  const start_date = new Date((new Date(end_date)).setDate(end_date.getDate() - 31));
+  // Dates par défaut
+  if (start_date === "" || end_date === "") {
+    // http://zoocoder.com/javascript-addition-et-soustraction-sur-les-dates/
+    end_date = new Date();
+    end_date.setDate(end_date.getDate() + 1); // exclue
+    // Plage de 1 mois de parcours des évènements
+    start_date = new Date(end_date);
+    start_date.setDate(end_date.getDate() - 7); // incluse
+    end_date = end_date.toISOString().split('T')[0];
+    start_date = start_date.toISOString().split('T')[0];
+  }
+  // Chronologie des dates incorrectes
+  else if ((new Date(start_date)) > (new Date(end_date))) {return;}
   const url = "https://graph.microsoft.com/v1.0/me/calendars/"
   +id_calendar+"/calendarview/?"
-  +"startdatetime="+start_date.toISOString()
-  +"&enddatetime="+end_date.toISOString()
+  +"startdatetime="+start_date
+  +"&enddatetime="+end_date
   +"&$select=subject,start,end,location";
   //+"&$orderby=value/start/dateTime" // Ne fonctionne pas (Bad Request)
   //console.log(url);
@@ -144,7 +153,15 @@ function get_events(id_calendar) {
       line.find(".subject").on("click", function() {show_event(line_json["id"])});
       events.append(line);
     });
-    $("main").html(events);
+    $("main").html($(`
+      <p class="form">Date de début</p>
+      <input id="start_date" type="date" value="`+start_date+`">
+      <p class="form">Date de fin</p>
+      <input id="end_date" type="date" value="`+end_date+`"><br>
+      `));
+    $("main input#start_date").on("change", function() {get_events(id_calendar, $(this).val(), end_date);});
+    $("main input#end_date").on("change", function() {get_events(id_calendar, start_date, $(this).val());});
+    $("main").append(events);
   }
   
   get_requests(url, fdone);
